@@ -1,0 +1,7 @@
+{:tasks
+ {:requires
+  ([clojure.java.shell :as shell])
+
+  cider
+  {:doc "Starts the backend repl for local development."
+   :task (shell "clj -M:dev:debug:cider")}}}
