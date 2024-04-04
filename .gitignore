@@ -1,2 +1,5 @@
 .cpcache/
 .clerk/
+.nrepl-port
+*qmd
+.clay*
