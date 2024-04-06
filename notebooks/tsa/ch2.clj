@@ -9,8 +9,8 @@
 ;; ## 2.2 Forecasting Historical Mean
 ;; ### 2.2.1 Setup for baseline implementations
 
-;; A `Dataset` is the logically the equivalent of a Pandas DataFrame in Python. However, a dataset is
-;; immutable while the Pandas DataFrame is mutable.
+;; A `Dataset` is the logical equivalent of a Pandas `DataFrame` in Python. However, a dataset is
+;; immutable where as the Pandas `DataFrame` is mutable.
 (def ds (ds/->dataset "./resources/data/jj.csv" {:key-fn keyword}))
 
 
@@ -56,13 +56,13 @@
 (def historical-mean (dfn/mean (:data train-ds)))
 
 ;; A naive forecast with `historical-mean`. Here a new column is created with the name `:pred-data`
-;; with 4 value to match up with the rows in `test-ds`.  A `(repeat historical-mean)` will causes
+;; with the value `4` to match up with the rows in `test-ds`.  NB. A `(repeat historical-mean)` will causes
 ;; an `OutOfMemoryError`
 (def naive-predictions-ds
   (ds/add-column test-ds (ds/new-column :pred-data (repeat 4 historical-mean))))
 
 
-;; The Mean Absolute Percentage Error (MAPE) is used to judge how well the predictions were
+;; The Mean Absolute Percentage Error (MAPE) will be used to judge prediction accuracy.
 (defn mape
   "Mean Absolute Percentage Error."
   [observations predictions]
@@ -92,29 +92,30 @@
 
 ;; ### Visualizations
 ;; `:date` holds instances of `java.time.LocalDate` which is turned to a string for plotly
-(clerk/plotly {:data [{:type "scatter"
-                       :name "Train"
-                       :x (column-data train-ds :date str)
-                       :y (column-data train-ds :data)}
-                      {:type "scatter"
-                       :name "Test"
-                       :x (column-data naive-predictions-ds :date str)
-                       :y (column-data naive-predictions-ds :data)}
-                      {:type "scatter"
-                       :name "Predicted"
-                       :x (column-data naive-predictions-ds :date str)
-                       :y (column-data naive-predictions-ds :pred-data)}]
-               :layout {:title "Naive Prediction"
-                        :xaxis {:title "Date"}
-                        :yaxis {:title "Earnings Per Share (USD)"}
-                        :shapes [{:type "rect"
-                                  :x0 (str (get-in naive-predictions-ds [:date 0]))
-                                  :y0 0
-                                  :x1 (str (get-in naive-predictions-ds [:date (dec (ds/row-count naive-predictions-ds))]))
-                                  :y1 (apply dfn/max (:data naive-predictions-ds))
-                                  :fillcolor "#d3d3d3"
-                                  :opacity 0.4
-                                  :line {:width 0}}]}})
+(clerk/plotly
+ {:data [{:type "scatter"
+          :name "Train"
+          :x (column-data train-ds :date str)
+          :y (column-data train-ds :data)}
+         {:type "scatter"
+          :name "Test"
+          :x (column-data naive-predictions-ds :date str)
+          :y (column-data naive-predictions-ds :data)}
+         {:type "scatter"
+          :name "Predicted"
+          :x (column-data naive-predictions-ds :date str)
+          :y (column-data naive-predictions-ds :pred-data)}]
+  :layout {:title "Naive Prediction"
+           :xaxis {:title "Date"}
+           :yaxis {:title "Earnings Per Share (USD)"}
+           :shapes [{:type "rect"
+                     :x0 (str (get-in naive-predictions-ds [:date 0]))
+                     :y0 0
+                     :x1 (str (get-in naive-predictions-ds [:date (dec (ds/row-count naive-predictions-ds))]))
+                     :y1 (apply dfn/max (:data naive-predictions-ds))
+                     :fillcolor "#d3d3d3"
+                     :opacity 0.4
+                     :line {:width 0}}]}})
 
 
 ;; ## 2.3 Forecasting Last Year's Mean
@@ -125,29 +126,30 @@
 
 (def mape-last-year-mean (mape (:data last-year-mean-ds) (:pred-last-year-mean last-year-mean-ds)))
 
-(clerk/plotly {:data [{:type "scatter"
-                       :name "Train"
-                       :x (column-data train-ds :date str)
-                       :y (column-data train-ds :data)}
-                      {:type "scatter"
-                       :name "Test"
-                       :x (column-data last-year-mean-ds :date str)
-                       :y (column-data last-year-mean-ds :data)}
-                      {:type "scatter"
-                       :name "Predicted"
-                       :x (column-data last-year-mean-ds :date str)
-                       :y (column-data last-year-mean-ds :pred-last-year-mean)}]
-               :layout {:title "Last Year's Mean Prediction"
-                        :xaxis {:title "Date"}
-                        :yaxis {:title "Earnings Per Share (USD)"}
-                        :shapes [{:type "rect"
-                                  :x0 (str (get-in last-year-mean-ds [:date 0]))
-                                  :y0 0
-                                  :x1 (str (get-in last-year-mean-ds [:date (dec (ds/row-count last-year-mean-ds))]))
-                                  :y1 (apply dfn/max (:data last-year-mean-ds))
-                                  :fillcolor "#d3d3d3"
-                                  :opacity 0.4
-                                  :line {:width 0}}]}})
+(clerk/plotly
+ {:data [{:type "scatter"
+          :name "Train"
+          :x (column-data train-ds :date str)
+          :y (column-data train-ds :data)}
+         {:type "scatter"
+          :name "Test"
+          :x (column-data last-year-mean-ds :date str)
+          :y (column-data last-year-mean-ds :data)}
+         {:type "scatter"
+          :name "Predicted"
+          :x (column-data last-year-mean-ds :date str)
+          :y (column-data last-year-mean-ds :pred-last-year-mean)}]
+  :layout {:title "Last Year's Mean Prediction"
+           :xaxis {:title "Date"}
+           :yaxis {:title "Earnings Per Share (USD)"}
+           :shapes [{:type "rect"
+                     :x0 (str (get-in last-year-mean-ds [:date 0]))
+                     :y0 0
+                     :x1 (str (get-in last-year-mean-ds [:date (dec (ds/row-count last-year-mean-ds))]))
+                     :y1 (apply dfn/max (:data last-year-mean-ds))
+                     :fillcolor "#d3d3d3"
+                     :opacity 0.4
+                     :line {:width 0}}]}})
 
 
 ;; ## 2.4 Predicting Using Last Known Value
@@ -156,29 +158,30 @@
 (def last-eps-ds
   (ds/add-column test-ds (ds/new-column :pred-last (repeat 4 last-eps))))
 
-(clerk/plotly {:data [{:type "scatter"
-                       :name "Train"
-                       :x (column-data train-ds :date str)
-                       :y (column-data train-ds :data)}
-                      {:type "scatter"
-                       :name "Test"
-                       :x (column-data last-eps-ds :date str)
-                       :y (column-data last-eps-ds :data)}
-                      {:type "scatter"
-                       :name "Predicted"
-                       :x (column-data last-eps-ds :date str)
-                       :y (column-data last-eps-ds :pred-last)}]
-               :layout {:title "Last EPS Prediction"
-                        :xaxis {:title "Date"}
-                        :yaxis {:title "Earnings Per Share (USD)"}
-                        :shapes [{:type "rect"
-                                  :x0 (str (get-in last-eps-ds [:date 0]))
-                                  :y0 0
-                                  :x1 (str (get-in last-eps-ds [:date (dec (ds/row-count last-eps-ds))]))
-                                  :y1 (apply dfn/max (:data last-eps-ds))
-                                  :fillcolor "#d3d3d3"
-                                  :opacity 0.4
-                                  :line {:width 0}}]}})
+(clerk/plotly
+ {:data [{:type "scatter"
+          :name "Train"
+          :x (column-data train-ds :date str)
+          :y (column-data train-ds :data)}
+         {:type "scatter"
+          :name "Test"
+          :x (column-data last-eps-ds :date str)
+          :y (column-data last-eps-ds :data)}
+         {:type "scatter"
+          :name "Predicted"
+          :x (column-data last-eps-ds :date str)
+          :y (column-data last-eps-ds :pred-last)}]
+  :layout {:title "Last EPS Prediction"
+           :xaxis {:title "Date"}
+           :yaxis {:title "Earnings Per Share (USD)"}
+           :shapes [{:type "rect"
+                     :x0 (str (get-in last-eps-ds [:date 0]))
+                     :y0 0
+                     :x1 (str (get-in last-eps-ds [:date (dec (ds/row-count last-eps-ds))]))
+                     :y1 (apply dfn/max (:data last-eps-ds))
+                     :fillcolor "#d3d3d3"
+                     :opacity 0.4
+                     :line {:width 0}}]}})
 
 
 (def mape-last (mape (:data last-eps-ds) (:pred-last last-eps-ds)))
@@ -201,38 +204,40 @@
 
 (def mape-naive-seasonal (mape (:data naive-seasonal-ds) (:pred-last-season naive-seasonal-ds)))
 
-(clerk/plotly {:data [{:type "scatter"
-                       :name "Train"
-                       :x (column-data train-ds :date str)
-                       :y (column-data train-ds :data)}
-                      {:type "scatter"
-                       :name "Test"
-                       :x (column-data naive-seasonal-ds :date str)
-                       :y (column-data naive-seasonal-ds :data)}
-                      {:type "scatter"
-                       :name "Predicted"
-                       :x (column-data naive-seasonal-ds :date str)
-                       :y (column-data naive-seasonal-ds :pred-last-season)}]
-               :layout {:title "Last EPS Prediction"
-                        :xaxis {:title "Date"}
-                        :yaxis {:title "Earnings Per Share (USD)"}
-                        :shapes [{:type "rect"
-                                  :x0 (str (get-in naive-seasonal-ds [:date 0]))
-                                  :y0 0
-                                  :x1 (str (get-in naive-seasonal-ds [:date (dec (ds/row-count naive-seasonal-ds))]))
-                                  :y1 (apply dfn/max (:data naive-seasonal-ds))
-                                  :fillcolor "#d3d3d3"
-                                  :opacity 0.4
-                                  :line {:width 0}}]}})
+(clerk/plotly
+ {:data [{:type "scatter"
+          :name "Train"
+          :x (column-data train-ds :date str)
+          :y (column-data train-ds :data)}
+         {:type "scatter"
+          :name "Test"
+          :x (column-data naive-seasonal-ds :date str)
+          :y (column-data naive-seasonal-ds :data)}
+         {:type "scatter"
+          :name "Predicted"
+          :x (column-data naive-seasonal-ds :date str)
+          :y (column-data naive-seasonal-ds :pred-last-season)}]
+  :layout {:title "Last EPS Prediction"
+           :xaxis {:title "Date"}
+           :yaxis {:title "Earnings Per Share (USD)"}
+           :shapes [{:type "rect"
+                     :x0 (str (get-in naive-seasonal-ds [:date 0]))
+                     :y0 0
+                     :x1 (str (get-in naive-seasonal-ds [:date (dec (ds/row-count naive-seasonal-ds))]))
+                     :y1 (apply dfn/max (:data naive-seasonal-ds))
+                     :fillcolor "#d3d3d3"
+                     :opacity 0.4
+                     :line {:width 0}}]}})
 
 
 
 ;; ### MAPE of Baselines
-(clerk/plotly {:data [{:type "bar"
-                       :x ["Historical Mean" "Last Year Mean" "Last" "Naive Seasonal"]
-                       :y [mape-historical-mean mape-last-year-mean mape-last mape-naive-seasonal]
-                       :text (map #(format "%.2f" %)
-                                  [mape-historical-mean mape-last-year-mean mape-last mape-naive-seasonal])}]
-               :layout {:title "Baseline MAPEs"
-                        :xaxis {:title "Baselines"}
-                        :yaxis {:title "MAPE (%)"}}})
+(clerk/plotly
+ {:data [{:type "bar"
+          :x ["Historical Mean" "Last Year Mean" "Last" "Naive Seasonal"]
+          :y [mape-historical-mean mape-last-year-mean mape-last mape-naive-seasonal]
+          :text (map #(format "%.2f" %)
+                     [mape-historical-mean mape-last-year-mean mape-last mape-naive-seasonal])}]
+  :layout {:title "Baseline MAPEs"
+           :xaxis {:title "Baselines"}
+           :yaxis {:title "MAPE (%)"}}})
