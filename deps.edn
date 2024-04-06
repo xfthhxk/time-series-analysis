@@ -11,7 +11,10 @@
 
         org.clj-commons/hickory {:mvn/version "0.7.3"}
         datalevin/datalevin {:mvn/version "0.8.19"}
-        tick/tick {:mvn/version "0.6.2"}}
+        tick/tick {:mvn/version "0.6.2"}
+
+        org.scicloj/kindly {:mvn/version "4-beta1"}
+        org.scicloj/kind-clerk {:mvn/version "1-alpha8"}}
 
  :paths ["src" "resources" "target/classes"]
 
