@@ -1,11 +1,10 @@
 ;; This namespace follows https://github.com/marcopeix/TimeSeriesForecastingInPython/blob/master/CH03/CH03.ipynb
 (ns tsa.ch3
-  (:require [tech.v3.dataset :as ds]
-            [tech.v3.dataset.column :as column]
-            [tech.v3.datatype.functional :as dfn]
+  (:require [tablecloth.api :as tc]
+            [tsa.math :as math]
             [nextjournal.clerk :as clerk]
             [fastmath.random :as random]
-            ))
+            [fastmath.stats :as stats]))
 
 ;; # Random Walk
 ;; A random walk is defined using equation:
@@ -25,14 +24,21 @@ y_{t} = \\sum_{\\mathclap{t = 1}}^{T} \\epsilon_{t}
 \\end{alignedat}
 ")
 
-
-(def steps
+;; This is how we'd generate the steps in Clojure
+(def steps-clj
   (let [d (-> random/default-normal
               (random/set-seed! 42))]
     (->> (repeatedly 1000 #(random/sample d))
-         (drop 1)
+         vec
          (into [0]))))
 
+
+;; However we'll use the Python generated data with seed 42 since the seeds don't seem to produce the same data.
+(def steps (-> "./resources/data/ch3-python-seed-42-std-normal.csv"
+               (tc/dataset {:header-row? false})
+               (tc/->array "column-0")
+               vec
+               (assoc 0 0)))
 
 (def random-walk (reductions + steps))
 
@@ -63,3 +69,16 @@ y'_{t} = y_{t} - y_{t-1}
 
 ;; Forecasting a random walk on a long horizon does not make sense.
 ;; Forecasting the next timestep of a random walk is the only reasonable situation to tackle.
+
+
+(def max-lag 1)
+(def adf-test (math/augmented-dickey-fuller-test (double-array random-walk) max-lag))
+
+
+(def acf (stats/acf random-walk 20))
+
+(clerk/plotly
+ {:data [{:type "scatter"
+          :name "ACF Plot"
+          :x (range 20)
+          :y acf}]})
