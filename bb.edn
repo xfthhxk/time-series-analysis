@@ -1,7 +1,17 @@
 {:tasks
  {:requires
-  ([clojure.java.shell :as shell])
+  ([clojure.java.shell :as shell]
+   [clojure.edn :as edn])
 
   cider
   {:doc "Starts the backend repl for local development."
-   :task (shell "clj -M:dev:debug:cider")}}}
+   :task (shell "clj -M:dev:debug:cider")}
+
+  outdated
+  {:doc "Show outdated dependencies. Specify :upgrade true to upgrade"
+   :task (let [{:keys [upgrade] :as args} (apply hash-map (map edn/read-string *command-line-args*))
+               upgrade-flag (if upgrade "--upgrade --force --download" "")
+               cmd (format "clojure -M:outdated %s" upgrade-flag)]
+           ;; continue true required because outdated exits with 1 when there are
+           ;; deps that can be upgraded
+           (shell {:continue true} cmd))}}}

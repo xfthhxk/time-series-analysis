@@ -1,16 +1,12 @@
-{:deps {org.clojure/clojure {:mvn/version "1.11.1"}
-        org.scicloj/noj {:mvn/version "1-alpha34"}
-        clojure.java-time/clojure.java-time {:mvn/version "1.3.0"}
+{:deps {org.clojure/clojure {:mvn/version "1.11.3"}
+        scicloj/tablecloth {:mvn/version "7.029.2"}
+        clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
         io.github.nextjournal/clerk {:mvn/version "0.15.957"}
-        superstring/superstring {:mvn/version "3.2.0"}
-        aero/aero {:mvn/version "1.1.6"}
-        hato/hato {:mvn/version "0.9.0"}
-        com.cnuernber/charred {:mvn/version "1.032"}
-        techascent/tech.ml.dataset {:mvn/version "7.021"}
+        com.cnuernber/charred {:mvn/version "1.034"}
         generateme/fastmath {:mvn/version "2.4.0"}
-        tick/tick {:mvn/version "0.6.2"}
+        tick/tick {:mvn/version "0.7.5"}
         org.hawkular.datamining/hawkular-datamining-forecast {:mvn/version "0.2.0.Final"}
-        org.scicloj/kindly {:mvn/version "4-beta1"}
+        org.scicloj/kindly {:mvn/version "4-beta4"}
         org.scicloj/kind-clerk {:mvn/version "1-alpha8"}}
 
  :paths ["src" "resources" "target/classes"]
@@ -20,15 +16,13 @@
             :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}
 
            :debug
-           {:extra-deps {djblue/portal                         {:mvn/version "0.46.0"}
-                         com.github.jpmonettas/flow-storm-dbg  {:mvn/version "3.7.1"}
-                         com.github.jpmonettas/flow-storm-inst {:mvn/version "3.7.1"}}}
+           {:extra-deps {djblue/portal                         {:mvn/version "0.55.1"}
+                         com.github.jpmonettas/flow-storm-dbg  {:mvn/version "3.7.5"}
+                         com.github.jpmonettas/flow-storm-inst {:mvn/version "3.7.5"}}}
 
-           :cider
-           {:extra-deps {cider/cider-nrepl {:mvn/version "0.36.0"}
-                         com.kohlschutter.junixsocket/junixsocket {:mvn/version "2.7.0" :extension "pom"}}
+           :cider {:extra-deps {cider/cider-nrepl {:mvn/version "0.47.1"}}
             :main-opts  ["-m" "nrepl.cmdline" "--interactive" "--color" "--middleware" "[cider.nrepl/cider-middleware]" ]}
 
            :outdated
-           {:extra-deps {com.github.liquidz/antq {:mvn/version "2.5.1109"}}
+           {:extra-deps {com.github.liquidz/antq {:mvn/version "2.8.1194"}}
             :main-opts  ["-m" "antq.core"]}}}

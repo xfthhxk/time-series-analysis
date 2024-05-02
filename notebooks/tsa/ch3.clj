@@ -1,6 +1,7 @@
 ;; This namespace follows https://github.com/marcopeix/TimeSeriesForecastingInPython/blob/master/CH03/CH03.ipynb
 (ns tsa.ch3
   (:require [tablecloth.api :as tc]
+            [tablecloth.column.api :as tcc]
             [tsa.math :as math]
             [nextjournal.clerk :as clerk]
             [fastmath.random :as random]
@@ -75,10 +76,69 @@ y'_{t} = y_{t} - y_{t-1}
 (def adf-test (math/augmented-dickey-fuller-test (double-array random-walk) max-lag))
 
 
-(def acf (stats/acf random-walk 20))
+(def lags 20)
+(def acf (stats/acf random-walk lags))
+(def acf-bounds (math/acf-bounds acf))
+
+;; This plot does not look like the python plot but the core idea is that
+;; the autocorrelation decreases slowly and is outside of the upper and lower
+;; bounds which represents a confidence interval.
+;; **TODO: Make a better plot.**
+(clerk/plotly
+ {:data [{:type "bar"
+          :name "ACF Plot"
+          :x (range lags)
+          :y acf
+          :width (repeat lags 0.1)}
+         {:type "scatter"
+          :name "Upper"
+          :x (range lags)
+          :y (repeat lags (:upper acf-bounds))}
+         {:type "scatter"
+          :name "Lower"
+          :x (range lags)
+          :y (repeat lags (:lower acf-bounds))}]
+  :layout {:scattermode "group"
+           :barcornerradius 50}})
+
+
+(def diff-random-walk (math/diff random-walk 1))
 
 (clerk/plotly
- {:data [{:type "scatter"
-          :name "ACF Plot"
-          :x (range 20)
-          :y acf}]})
+ {:data [{:type "bar"
+          :x (range (count diff-random-walk))
+          :y (.-data diff-random-walk)
+          :width (repeat (count diff-random-walk) 0.1)}]})
+
+
+;; The p-value is less than 0.05 and the statistic is negative so it is stationary.
+;; NB. the book's ADF is -31.79
+(def diff-adf-test (-> diff-random-walk
+                       .-data
+                       double-array
+                       (math/augmented-dickey-fuller-test max-lag)))
+
+;; -------------------------------------------------------------------------------------------
+;; **NB. This section may not be correct.  The graphs don't come close to matching the book.**
+(def diff-acf (stats/acf diff-random-walk lags))
+
+(def diff-acf-bounds (math/acf-bounds diff-acf))
+
+(clerk/plotly
+ {:data [{:type "bar"
+          :name "Diff ACF Plot"
+          :x (range lags)
+          :y acf
+          :width (repeat lags 0.1)}
+         {:type "scatter"
+          :name "Upper"
+          :x (range lags)
+          :y (repeat lags (:upper diff-acf-bounds))}
+         {:type "scatter"
+          :name "Lower"
+          :x (range lags)
+          :y (repeat lags (:lower diff-acf-bounds))}]
+  :layout {:scattermode "group"
+           :barcornerradius 50}})
+
+;; ## GOOG Example
