@@ -8,6 +8,11 @@
 (set! *warn-on-reflection* true)
 
 
+(def +double-array-class+ (type (double-array 0)))
+
+(def +float-array-class+ (type (float-array 0)))
+
+
 ;; NB. dfn is smart enough to operate on columns,
 ;; and scalars and combinations
 
@@ -27,11 +32,20 @@
     (tcc/- (tcc/slice c n)
            (tcc/slice c 0 (- (count c) n 1)))))
 
+
+(seqable? (double-array [1 2 3]))
+
+
 (defn augmented-dickey-fuller-test
   "`xs` is an array of doubles and `max-lag` is an int.
   Returns a map with keys `:statistic` and `:p-value`"
   [xs max-lag]
-  (let [adf (AugmentedDickeyFullerTest. xs max-lag)]
+  (let [d-xs (cond
+               (= +double-array-class+ (type xs)) xs
+               (tcc/column? xs) (double-array xs)
+               (seqable? xs) (double-array xs)
+               :else (throw (ex-info "Unable to convert to double-array" {:type (type xs)})))
+        adf (AugmentedDickeyFullerTest. d-xs max-lag)]
     {:statistic (.statistics adf)
      :p-value (.pValue adf)}))
 
