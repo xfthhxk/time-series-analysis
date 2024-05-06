@@ -1,12 +1,13 @@
 ;; This namespace follows https://github.com/marcopeix/TimeSeriesForecastingInPython/blob/master/CH03/CH03.ipynb
 (ns tsa.ch3
-  (:require [tablecloth.api :as tc]
-            [tablecloth.column.api :as tcc]
-            [tsa.math :as math]
-            [clojure.string :as str]
-            [nextjournal.clerk :as clerk]
-            [fastmath.random :as random]
-            [fastmath.stats :as stats]))
+  (:require
+   [tablecloth.api :as tc]
+   [tablecloth.column.api :as tcc]
+   [tsa.math :as math]
+   [clojure.string :as str]
+   [nextjournal.clerk :as clerk]
+   [fastmath.random :as random]
+   [fastmath.stats :as stats]))
 
 ;; # Random Walk
 ;; A random walk is defined using equation:
