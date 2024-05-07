@@ -32,7 +32,6 @@ y_{t} = \\sum_{\\mathclap{t = 1}}^{T} \\epsilon_{t}
   (let [d (-> random/default-normal
               (random/set-seed! 42))]
     (->> (repeatedly 1000 #(random/sample d))
-         vec
          (into [0]))))
 
 
@@ -113,7 +112,7 @@ y'_{t} = y_{t} - y_{t-1}
           :width (repeat (count diff-random-walk) 0.1)}]})
 
 
-;; The p-value is less than 0.05 and the statistic is negative so it is stationary.
+;; The `diff-random-walk` series is stationary based on our significance level of 5%.
 ;; NB. the book's ADF is -31.79
 (def diff-adf-test (math/augmented-dickey-fuller-test diff-random-walk max-lag))
 
